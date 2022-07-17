@@ -90,9 +90,13 @@ string inGetAppConfigPath() {
         // used .inochi-creator there, but that's not correct
         // This code will ensure we still use old config if it's there.
         // Otherwise we create config for the *correct* path
-        string fdir = buildPath(appDataDir, "."~APP_FOLDER_NAME);
-        if (!exists(fdir)) fdir = buildPath(appDataDir, APP_FOLDER_NAME);
-        appDataDir = fdir;
+//        string fdir = buildPath(appDataDir, "."~APP_FOLDER_NAME);
+//        if (!exists(fdir)) fdir = buildPath(appDataDir, APP_FOLDER_NAME);
+        //string fdir = buildPath(appDataDir, "."~APP_FOLDER_NAME);
+        //if (!exists(fdir)) fdir = buildPath(appDataDir, APP_FOLDER_NAME);
+        //appDataDir = fdir;
+        appDataDir = environment.get("XDG_CONFIG_HOME");
+        if (!appDataDir) appDataDir = buildPath(environment.get("HOME"), ".config");
         return appDataDir;
     } else {
 
