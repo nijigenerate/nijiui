@@ -10,6 +10,7 @@ import inui.core.app;
 import inui.core.font;
 import inui.core;
 import inui.panel;
+import inui.toolwindow;
 import inui.widgets;
 
 import bindbc.sdl;
@@ -178,6 +179,15 @@ public:
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        
+        version(linux) {
+            // Don't disable compositing on Linux
+            SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+
+            // We *always* want to use EGL, especially if we want to pass textures around via DMABUF.
+            SDL_SetHint(SDL_HINT_VIDEO_X11_FORCE_EGL, "1");
+            SDL_SetHint(SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, "1");
+        }
 
         // Create window with GL and resizing enabled,
         // important to give the GL hint
@@ -312,6 +322,8 @@ public:
 
                 // Update panels
                 inUpdatePanels();
+
+                inUpdateToolWindows();
 
                 uiImRenderDialogs();
 
