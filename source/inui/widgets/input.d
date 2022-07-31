@@ -63,8 +63,11 @@ bool uiImInputText(string wId, float width, ref string buffer, ImGuiInputTextFla
             if (data.EventFlag == ImGuiInputTextFlags.CallbackResize) {
             
                 // Resize and pass buffer ptr in
-                (*udata.str).length = data.BufTextLen;
+                (*udata.str).length = data.BufTextLen+1;
                 data.Buf = cast(char*)(*udata.str).ptr;
+                
+                data.Buf[data.BufTextLen] = '\0';
+                (*udata.str) = (*udata.str)[0..$-1];
             }
             return 0;
         },
@@ -135,8 +138,12 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
             if (data.EventFlag == ImGuiInputTextFlags.CallbackResize) {
             
                 // Resize and pass buffer ptr in
-                (*udata.str).length = data.BufTextLen;
+                (*udata.str).length = data.BufTextLen+1;
+
+                // slice out the null terminator
                 data.Buf = cast(char*)(*udata.str).ptr;
+                data.Buf[data.BufTextLen] = '\0';
+                (*udata.str) = (*udata.str)[0..$-1];
             }
             return 0;
         },
@@ -242,4 +249,32 @@ void uiImEndComboBox() {
 */
 bool uiImSelectable(const(char)* name, bool selected = false) {
     return igSelectable(name, selected);
+}
+
+/**
+    Color editor
+*/
+bool uiImColor4(const(char)* label, float[4]* colors) {
+    return igColorEdit4(label, colors);
+}
+
+/**
+    Color editor
+*/
+bool uiImColorButton4(const(char)* label, float[4]* colors) {
+    return igColorEdit4(label, colors, ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.AlphaBar);
+}
+
+/**
+    Color picker
+*/
+bool uiImColorPicker4(const(char)* label, float[4]* colors) {
+    return igColorPicker4(label, colors);
+}
+
+/**
+    Color swatch
+*/
+bool uiImColorSwatch4(const(char)* description, vec4 color) {
+    return igColorButton(description, ImVec4(color.r, color.g, color.b, color.a));
 }
