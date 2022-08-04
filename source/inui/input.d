@@ -14,6 +14,40 @@ enum MouseButton {
     Right = ImGuiMouseButton.Right,
 }
 
+private {
+    bool[3] wasMouseDown;
+    bool[3] isMouseDown;
+
+    bool[3] downBeganInWindow;
+}
+
+void inInputUpdate() {
+    wasMouseDown[0] = isMouseDown[0];
+    wasMouseDown[1] = isMouseDown[1];
+    wasMouseDown[2] = isMouseDown[2];
+
+    isMouseDown[0] = igIsMouseDown(ImGuiMouseButton.Left);
+    isMouseDown[1] = igIsMouseDown(ImGuiMouseButton.Middle);
+    isMouseDown[2] = igIsMouseDown(ImGuiMouseButton.Right);
+
+
+    // Handle data for querying whether the mouse input began in the UI
+    if (!wasMouseDown[0] && isMouseDown[0] && inInputIsInUI()) downBeganInWindow[0] = true;
+    if (!wasMouseDown[1] && isMouseDown[1] && inInputIsInUI()) downBeganInWindow[1] = true;
+    if (!wasMouseDown[2] && isMouseDown[2] && inInputIsInUI()) downBeganInWindow[2] = true;
+    if (!isMouseDown[0]) downBeganInWindow[0] = false;
+    if (!isMouseDown[1]) downBeganInWindow[1] = false;
+    if (!isMouseDown[2]) downBeganInWindow[2] = false;
+
+}
+
+/**
+    Whether the mouse being down began in the UI
+*/
+bool inInputMouseDownBeganInUI(MouseButton button) {
+    return isMouseDown[cast(int)button] && downBeganInWindow[cast(int)button];
+}
+
 /**
     Whether the mouse is within the UI
 */
@@ -24,8 +58,15 @@ bool inInputIsInUI() {
 /**
     Gets whether the mouse was clicked
 */
-bool inInputMouseDown(MouseButton button, bool repeat=false) {
-    return igIsMouseDown(cast(ImGuiMouseButton)button);
+bool inInputMouseDown(MouseButton button) {
+    return isMouseDown[cast(int)button];
+}
+
+/**
+    Gets whether the mouse was clicked
+*/
+bool inInputWasMouseDown(MouseButton button) {
+    return wasMouseDown[cast(int)button];
 }
 
 /**
