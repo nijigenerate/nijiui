@@ -1,10 +1,10 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.widgets.dummy;
+module nijiui.widgets.dummy;
 import bindbc.imgui;
 import std.math : abs;
 import inmath.linalg;

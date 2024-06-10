@@ -1,4 +1,4 @@
-module inui.widgets.popup;
+module nijiui.widgets.popup;
 import bindbc.imgui;
 
 /**

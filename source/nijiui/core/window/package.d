@@ -1,12 +1,12 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.core.window;
+module nijiui.core.window;
 
-public import inui.core.window.appwin;
+public import nijiui.core.window.appwin;
 
 /**
     The base of a Window
@@ -71,7 +71,7 @@ private {
     InWindow[] subwindows;
 }
 
-package(inui) {
+package(nijiui) {
     
     /**
         Gets the windowlist

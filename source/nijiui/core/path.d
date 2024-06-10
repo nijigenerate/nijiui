@@ -1,11 +1,11 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.core.path;
-import inui.core.app;
+module nijiui.core.path;
+import nijiui.core.app;
 import std.path;
 import std.process;
 import std.file : getcwd, mkdirRecurse, exists;

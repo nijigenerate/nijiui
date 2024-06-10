@@ -1,18 +1,18 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.core;
+module nijiui.core;
 import bindbc.sdl;
 import bindbc.imgui;
 
-public import inui.core.window;
-public import inui.core.app;
-public import inui.core.path;
-public import inui.core.settings;
-public import inui.core.utils;
+public import nijiui.core.window;
+public import nijiui.core.app;
+public import nijiui.core.path;
+public import nijiui.core.settings;
+public import nijiui.core.utils;
 import inmath;
 
 private {
@@ -34,7 +34,7 @@ void inInitUI() {
 }
 
 /**
-    Updates time, called internally by inui
+    Updates time, called internally by nijiui
 */
 void inUpdateTime() {
     lastTime = currTime;

@@ -1,15 +1,15 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.widgets.dialog;
-import inui.widgets.dummy;
-import inui.widgets.label;
-import inui.core.font;
+module nijiui.widgets.dialog;
+import nijiui.widgets.dummy;
+import nijiui.widgets.label;
+import nijiui.core.font;
 import bindbc.imgui;
-import inochi2d;
+import nijilive;
 import i18n;
 
 enum DialogLevel : size_t {

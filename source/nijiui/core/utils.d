@@ -1,4 +1,4 @@
-module inui.core.utils;
+module nijiui.core.utils;
 import fghj;
 
 bool isEmpty(Fghj value) {

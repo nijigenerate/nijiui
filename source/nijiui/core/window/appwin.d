@@ -1,19 +1,19 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.core.window.appwin;
-import inui.core.window;
-import inui.core.app;
-import inui.core.font;
-import inui.core;
-import inui.panel;
-import inui.toolwindow;
-import inui.widgets;
-import inui.input;
-import inochi2d.core;
+module nijiui.core.window.appwin;
+import nijiui.core.window;
+import nijiui.core.app;
+import nijiui.core.font;
+import nijiui.core;
+import nijiui.panel;
+import nijiui.toolwindow;
+import nijiui.widgets;
+import nijiui.input;
+import nijilive.core;
 
 import bindbc.sdl;
 import bindbc.opengl;

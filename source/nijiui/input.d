@@ -1,10 +1,10 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.input;
+module nijiui.input;
 import bindbc.imgui;
 import inmath;
 
@@ -32,9 +32,9 @@ void inInputUpdate() {
 
 
     // Handle data for querying whether the mouse input began in the UI
-    if (!wasMouseDown[0] && isMouseDown[0] && inInputIsInUI()) downBeganInWindow[0] = true;
-    if (!wasMouseDown[1] && isMouseDown[1] && inInputIsInUI()) downBeganInWindow[1] = true;
-    if (!wasMouseDown[2] && isMouseDown[2] && inInputIsInUI()) downBeganInWindow[2] = true;
+    if (!wasMouseDown[0] && isMouseDown[0] && inInputIsnijiui()) downBeganInWindow[0] = true;
+    if (!wasMouseDown[1] && isMouseDown[1] && inInputIsnijiui()) downBeganInWindow[1] = true;
+    if (!wasMouseDown[2] && isMouseDown[2] && inInputIsnijiui()) downBeganInWindow[2] = true;
     if (!isMouseDown[0]) downBeganInWindow[0] = false;
     if (!isMouseDown[1]) downBeganInWindow[1] = false;
     if (!isMouseDown[2]) downBeganInWindow[2] = false;
@@ -44,14 +44,14 @@ void inInputUpdate() {
 /**
     Whether the mouse being down began in the UI
 */
-bool inInputMouseDownBeganInUI(MouseButton button) {
+bool inInputMouseDownBegannijiui(MouseButton button) {
     return isMouseDown[cast(int)button] && downBeganInWindow[cast(int)button];
 }
 
 /**
     Whether the mouse is within the UI
 */
-bool inInputIsInUI() {
+bool inInputIsnijiui() {
     return igGetCurrentContext().HoveredWindow != null;
 }
 

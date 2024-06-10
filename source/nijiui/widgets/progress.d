@@ -1,4 +1,4 @@
-module inui.widgets.progress;
+module nijiui.widgets.progress;
 import bindbc.imgui;
 import inmath;
 

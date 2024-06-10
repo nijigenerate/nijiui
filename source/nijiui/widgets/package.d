@@ -1,21 +1,21 @@
 /*
-    Copyright © 2022, Inochi2D Project
+    Copyright © 2022, nijigenerate Project
     Distributed under the 2-Clause BSD License, see LICENSE file.
     
     Authors: Luna Nielsen
 */
-module inui.widgets;
+module nijiui.widgets;
 import inmath;
 import bindbc.imgui;
 
-public import inui.widgets.dummy;
-public import inui.widgets.image;
-public import inui.widgets.input;
-public import inui.widgets.menu;
-public import inui.widgets.label;
-public import inui.widgets.dialog;
-public import inui.widgets.progress;
-public import inui.widgets.popup;
+public import nijiui.widgets.dummy;
+public import nijiui.widgets.image;
+public import nijiui.widgets.input;
+public import nijiui.widgets.menu;
+public import nijiui.widgets.label;
+public import nijiui.widgets.dialog;
+public import nijiui.widgets.progress;
+public import nijiui.widgets.popup;
 
 void uiImPush(int id) {
     igPushID(id);
