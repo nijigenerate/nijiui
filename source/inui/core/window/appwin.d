@@ -13,6 +13,7 @@ import inui.panel;
 import inui.toolwindow;
 import inui.widgets;
 import inui.input;
+import inochi2d.core;
 
 import bindbc.sdl;
 import bindbc.opengl;
@@ -196,16 +197,6 @@ public:
         version(linux) {
             // Don't disable compositing on Linux
             SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
-
-            // We *always* want to use EGL, especially if we want to pass textures around via DMABUF.
-            SDL_SetHint(SDL_HINT_VIDEO_X11_FORCE_EGL, "1");
-            SDL_SetHint(SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, "1");
-
-            // HACK: Since we're requesting EGL bindbc-opengl needs to load EGL stuff
-            // This more or less forces EGL
-            // TODO: Make a PR and/or issue to get a cleaner way to use EGL.
-            import std.process : environment;
-            environment["XDG_SESSION_TYPE"] = "wayland";
         }
 
         // Create window with GL and resizing enabled,
@@ -232,7 +223,7 @@ public:
                     throw new Exception("OpenGL library could not be loaded!");
 
                 case GLSupport.noContext:
-                    throw new Exception("No valid OpenGL 4.2 context was found!");
+                    throw new Exception("No valid OpenGL context was found!");
 
                 default: break;
             }
@@ -313,11 +304,12 @@ public:
                     break;
             }
         }
-        
+
         // Start the Dear ImGui frame
         ImGuiOpenGLBackend.new_frame();
         ImGui_ImplSDL2_NewFrame();
         igNewFrame();
+
             // Update input
             inInputUpdate();
 
@@ -389,6 +381,16 @@ public:
         uiImCleanupDialogs();
     }
 
+    string getWindowHandle() {
+        SDL_SysWMinfo info;
+        auto res = SDL_GetWindowWMInfo(window, &info);
+        if (info.subsystem == SDL_SYSWM_TYPE.SDL_SYSWM_X11) {
+            import std.conv : to;
+            return "x11:" ~ info.info.x11.window.to!string(16);
+        }
+        return "";
+    }
+
     /**
         Forces the window to be focused
     */
@@ -428,5 +430,16 @@ public:
     override
     int height() {
         return height_;
+    }
+
+    void setIcon(ShallowTexture tex) {
+        SDL_SysWMinfo info;
+        SDL_GetWindowWMInfo(window, &info);
+        bool isWayland = info.subsystem == SDL_SYSWM_TYPE.SDL_SYSWM_WAYLAND;
+        version(linux) {
+            if (!isWayland) {
+                SDL_SetWindowIcon(window, SDL_CreateRGBSurfaceWithFormatFrom(tex.data.ptr, tex.width, tex.height, 32, 4*tex.width,  SDL_PIXELFORMAT_RGBA32));
+            }
+        }
     }
 }
