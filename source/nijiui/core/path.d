@@ -52,13 +52,13 @@ string inGetAppConfigPath() {
     }
 
     // On Windows %AppData% is used.
-    // Example: C:/Users/USERNAME/AppData/Roaming/.inochi-creatorS
+    // Example: C:/Users/USERNAME/AppData/Roaming/.nijigenerateS
     version(Windows) {
         appDataDir = environment.get("AppData");
     }
 
     // On Linux the app data dir is in $XDG_CONFIG_DIR, $HOME/.config or $HOME
-    // Example: /home/USERNAME/.inochi-creator
+    // Example: /home/USERNAME/.nijigenerate
     // NOTE: on flatpak XDG_CONFIG_HOME is ~/.var/app/
     else version(linux) {
         appDataDir = environment.get("XDG_CONFIG_HOME");
@@ -66,14 +66,14 @@ string inGetAppConfigPath() {
     }
 
     // On macOS things are thrown in to $HOME/Library/Application Support
-    // Example: /home/USERNAME/Library/Application Support/.inochi-creator
+    // Example: /home/USERNAME/Library/Application Support/.nijigenerate
     else version(OSX) {
         appDataDir = environment.get("HOME");
         if (appDataDir) appDataDir = buildPath(appDataDir, "Library", "Application Support");
     }
 
     // On other POSIX platforms just assume $HOME exists.
-    // Example: /home/USERNAME/.inochi-creator
+    // Example: /home/USERNAME/.nijigenerate
     else version(posix) {
         appDataDir = environment.get("HOME");
     }
@@ -88,7 +88,7 @@ string inGetAppConfigPath() {
     version(linux) {
 
         // On linux we're using standard XDG dirs, prior we
-        // used .inochi-creator there, but that's not correct
+        // used .nijigenerate there, but that's not correct
         // This code will ensure we still use old config if it's there.
         // Otherwise we create config for the *correct* path
         string fdir = buildPath(appDataDir, "."~inGetApplication().configDirName);
