@@ -15,10 +15,34 @@ import core.stdc.string : memcpy;
 import core.stdc.stdlib : malloc;
 import std.string;
 
+enum UIColor {
+    ButtonTextColor
+}
+
 private {
 
     struct TextCallbackUserData {
         string* str;
+    }
+
+    ImVec4[UIColor] colors;
+}
+
+ImVec4* uiGetColor(UIColor id) {
+    if (id in colors) {
+        return &colors[id];
+    } else {
+        return null;
+    }
+}
+
+void uiSetColor(UIColor id, ImVec4 value) {
+    colors[id] = value;
+}
+
+void uiDeleteColor(UIColor id) {
+    if (id in colors) {
+        colors.remove(id);
     }
 }
 
@@ -178,7 +202,15 @@ bool uiImCheckbox(const(char)* text, ref bool val) {
     A button
 */
 bool uiImButton(const(char)* text, vec2 size = vec2(0)) {
-    return igButton(text, ImVec2(size.x, size.y));
+    auto col = uiGetColor(UIColor.ButtonTextColor);
+    if (col) {
+        igPushStyleColor(ImGuiCol.Text, *col);
+    }
+    auto result = igButton(text, ImVec2(size.x, size.y));
+    if (col) {
+        igPopStyleColor();
+    }
+    return result;
 }
 
 /**
