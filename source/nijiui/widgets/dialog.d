@@ -7,6 +7,7 @@
 module nijiui.widgets.dialog;
 import nijiui.widgets.dummy;
 import nijiui.widgets.label;
+import nijiui.widgets.input;
 import nijiui.core.font;
 import bindbc.imgui;
 import nijilive;
@@ -107,7 +108,7 @@ void uiImRenderDialogs() {
             }
             
             if ((entry.btns & DialogButtons.Cancel) == 2) {
-                if (igButton(__("Cancel"), ImVec2(btnSize, btnHeight))) {
+                if (uiImButton(__("Cancel"), vec2(btnSize, btnHeight))) {
                     entry.selected = DialogButtons.Cancel;
                     igCloseCurrentPopup();
                 }
@@ -115,7 +116,7 @@ void uiImRenderDialogs() {
             }
 
             if ((entry.btns & DialogButtons.OK) == 1) {
-                if (igButton(__("OK"), ImVec2(btnSize, btnHeight))) {
+                if (uiImButton(__("OK"), vec2(btnSize, btnHeight))) {
                     entry.selected = DialogButtons.OK;
                     igCloseCurrentPopup();
                 }
@@ -123,7 +124,7 @@ void uiImRenderDialogs() {
             }
             
             if ((entry.btns & DialogButtons.No) == 8) {
-                if (igButton(__("No"), ImVec2(btnSize, btnHeight))) {
+                if (uiImButton(__("No"), vec2(btnSize, btnHeight))) {
                     entry.selected = DialogButtons.No;
                     igCloseCurrentPopup();
                 }
@@ -131,7 +132,7 @@ void uiImRenderDialogs() {
             }
             
             if ((entry.btns & DialogButtons.Yes) == 4) {
-                if (igButton(__("Yes"), ImVec2(btnSize, btnHeight))) {
+                if (uiImButton(__("Yes"), vec2(btnSize, btnHeight))) {
                     entry.selected = DialogButtons.Yes;
                     igCloseCurrentPopup();
                 }
