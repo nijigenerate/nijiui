@@ -202,6 +202,17 @@ bool uiImCheckbox(const(char)* text, ref bool val) {
     A button
 */
 bool uiImButton(const(char)* text, vec2 size = vec2(0)) {
+    auto style = igGetStyle();
+    ImVec2 originalFramePadding = style.FramePadding;
+
+    if (size.x != 0) {
+        style.FramePadding.x = 0;
+    }
+    if (size.y != 0) {
+        style.FramePadding.y = 0;
+    }
+
+
     auto col = uiGetColor(UIColor.ButtonTextColor);
     if (col) {
         igPushStyleColor(ImGuiCol.Text, *col);
@@ -210,6 +221,8 @@ bool uiImButton(const(char)* text, vec2 size = vec2(0)) {
     if (col) {
         igPopStyleColor();
     }
+
+    style.FramePadding = originalFramePadding;
     return result;
 }
 
