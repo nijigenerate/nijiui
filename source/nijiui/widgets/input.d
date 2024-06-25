@@ -14,6 +14,7 @@ import inmath.linalg;
 import core.stdc.string : memcpy;
 import core.stdc.stdlib : malloc;
 import std.string;
+import std.utf;
 
 enum UIColor {
     ButtonTextColor
@@ -62,6 +63,7 @@ bool uiImInputText(string wId, float width, ref string buffer, ImGuiInputTextFla
     if (buffer.ptr is null) {
         buffer = "";
     }
+    buffer ~= '\0';
 
     // Push ID
     igPushID(igGetID(wId.ptr, wId.ptr+wId.length));
@@ -85,11 +87,15 @@ bool uiImInputText(string wId, float width, ref string buffer, ImGuiInputTextFla
 
             // Allow resizing strings on GC heap
             if (data.EventFlag == ImGuiInputTextFlags.CallbackResize) {
-            
+
+                // Make sure the buffer doesn't become negatively sized.
+                if (data.BufTextLen < 0) data.BufTextLen = 0;
+
                 // Resize and pass buffer ptr in
                 (*udata.str).length = data.BufTextLen+1;
+
+                // slice out the null terminator
                 data.Buf = cast(char*)(*udata.str).ptr;
-                
                 data.Buf[data.BufTextLen] = '\0';
                 (*udata.str) = (*udata.str)[0..$-1];
             }
@@ -97,6 +103,9 @@ bool uiImInputText(string wId, float width, ref string buffer, ImGuiInputTextFla
         },
         &cb
     )) {
+        try {
+            buffer = buffer.toStringz.fromStringz;
+        } catch (std.utf.UTFException e) { }
         return true;
     }
 
@@ -131,6 +140,7 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
     if (buffer.ptr is null) {
         buffer = "";
     }
+    buffer ~= '\0';
 
     // Push ID
     igPushID(igGetID(wId.ptr, wId.ptr+wId.length));
@@ -160,6 +170,9 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
 
             // Allow resizing strings on GC heap
             if (data.EventFlag == ImGuiInputTextFlags.CallbackResize) {
+
+                // Make sure the buffer doesn't become negatively sized.
+                if (data.BufTextLen < 0) data.BufTextLen = 0;
             
                 // Resize and pass buffer ptr in
                 (*udata.str).length = data.BufTextLen+1;
@@ -173,6 +186,9 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
         },
         &cb
     )) {
+        try {
+            buffer = buffer.toStringz.fromStringz;
+        } catch (std.utf.UTFException e) { }
         return true;
     }
 
