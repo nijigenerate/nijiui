@@ -63,7 +63,8 @@ bool uiImInputText(string wId, float width, ref string buffer, ImGuiInputTextFla
     if (buffer.ptr is null) {
         buffer = "";
     }
-    buffer ~= '\0';
+    if (buffer.length == 0 || buffer[buffer.length - 1] != '\0')
+        buffer ~= '\0';
 
     // Push ID
     igPushID(igGetID(wId.ptr, wId.ptr+wId.length));
@@ -140,7 +141,8 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
     if (buffer.ptr is null) {
         buffer = "";
     }
-    buffer ~= '\0';
+    if (buffer.length == 0 || buffer[buffer.length - 1] != '\0')
+        buffer ~= '\0';
 
     // Push ID
     igPushID(igGetID(wId.ptr, wId.ptr+wId.length));
