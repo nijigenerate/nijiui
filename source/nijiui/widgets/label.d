@@ -50,3 +50,20 @@ void uiImPushTextWrapPos(float wrapPosition=0f) {
 void uiImPopTextWrapPos() {
     igPopTextWrapPos();
 }
+
+/**
+    Creates a new tooltip
+*/
+void uiImTooltip(string tip) {
+    igPushStyleVar(ImGuiStyleVar.WindowPadding, ImVec2(4, 4));
+    if (igIsItemHovered()) {
+        igBeginTooltip();
+
+            uiImPushTextWrapPos(igGetFontSize() * 35);
+            igTextUnformatted(tip.ptr, tip.ptr+tip.length);
+            uiImPopTextWrapPos();
+
+        igEndTooltip();
+    }
+    igPopStyleVar();
+}
