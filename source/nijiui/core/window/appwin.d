@@ -176,7 +176,7 @@ public:
         cleanup();
     }
 
-    this(string title, uint width, uint height) {
+    this(string title, uint width, uint height, int throttlingRate = 1) {
         this.width_ = width;
         this.height_ = height;
 
@@ -213,7 +213,7 @@ public:
         // Create context and load GL functions
         glctx = SDL_GL_CreateContext(window);
         SDL_GL_MakeCurrent(window, glctx);
-        SDL_GL_SetSwapInterval(1); // Enable VSync
+        setThrottlingRate(throttlingRate);
 
         // Load OpenGL and throw any important errors.
         if (!isGLLoaded) {
@@ -250,6 +250,10 @@ public:
         inInitFonts(); 
         inInitPanels();
         uiImInitDialogs();
+    }
+
+    void setThrottlingRate(int throttlingRate = 1) {
+        SDL_GL_SetSwapInterval(throttlingRate); // Enable VSync (throttlingRate > 0) or disable (throttlingRate == 0)
     }
 
     /**
