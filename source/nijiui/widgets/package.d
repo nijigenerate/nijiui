@@ -16,6 +16,7 @@ public import nijiui.widgets.label;
 public import nijiui.widgets.dialog;
 public import nijiui.widgets.progress;
 public import nijiui.widgets.popup;
+public import nijiui.widgets.category;
 
 void uiImPush(int id) {
     igPushID(id);
