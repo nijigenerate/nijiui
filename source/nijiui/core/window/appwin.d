@@ -46,7 +46,7 @@ private:
     int renderThrottlingCount = 0;
 
     // throttling buffer
-    version (Windows) {
+    version (SafeThrottling) {
         GLuint fbo = 0;
         GLuint fboTexture = 0;
     }
