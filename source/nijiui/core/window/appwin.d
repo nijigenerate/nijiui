@@ -22,6 +22,8 @@ import bindbc.imgui.ogl;
 import std.string;
 import std.path;
 
+import std.stdio;
+
 private {
     __gshared bool isGLLoaded;
 }
@@ -40,7 +42,15 @@ private:
     
     string[] draggedFiles;
     const(char)* iniPath;
+    int throttlingRate = 1;
+    int renderThrottlingCount = 0;
 
+    // throttling buffer
+    version (Windows) {
+        GLuint fbo = 0;
+        GLuint fboTexture = 0;
+    }
+    
 protected:
 
     final
@@ -253,7 +263,17 @@ public:
     }
 
     void setThrottlingRate(int throttlingRate = 1) {
-        SDL_GL_SetSwapInterval(throttlingRate); // Enable VSync (throttlingRate > 0) or disable (throttlingRate == 0)
+        this.throttlingRate = throttlingRate;
+        version(SafeThrottling) {
+            if (throttlingRate > 1) {
+                if (ctx && io) {
+                    onResized(cast(int)(io.DisplaySize.x), cast(int)(io.DisplaySize.y));
+                }
+            }
+            SDL_GL_SetSwapInterval(throttlingRate > 0 ? 1: 0); // Enable VSync (throttlingRate > 0) or disable (throttlingRate == 0)
+        } else {
+            SDL_GL_SetSwapInterval(throttlingRate); // Enable VSync (throttlingRate > 0) or disable (throttlingRate == 0)
+        }
     }
 
     /**
@@ -269,50 +289,50 @@ public:
     */
     final
     void update() {
+        void doUpdate() {
+            inUpdateTime();
 
-        inUpdateTime();
+            // Update important SDL events
+            draggedFiles.length = 0;
+            SDL_Event event;
+            while(SDL_PollEvent(&event)) {
+                switch(event.type) {
+                    case SDL_QUIT:
+                        close();
+                        break;
 
-        // Update important SDL events
-        draggedFiles.length = 0;
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            switch(event.type) {
-                case SDL_QUIT:
-                    close();
-                    break;
+                    case SDL_DROPFILE:
+                        draggedFiles ~= cast(string)event.drop.file.fromStringz;
+                        SDL_RaiseWindow(window);
+                        break;
+                    
+                    default: 
+                        ImGui_ImplSDL2_ProcessEvent(&event);
+                        if (event.type == SDL_WINDOWEVENT) {
 
-                case SDL_DROPFILE:
-                    draggedFiles ~= cast(string)event.drop.file.fromStringz;
-                    SDL_RaiseWindow(window);
-                    break;
-                
-                default: 
-                    ImGui_ImplSDL2_ProcessEvent(&event);
-                    if (event.type == SDL_WINDOWEVENT) {
+                            // CLOSE EVENT
+                            if (
+                                event.window.event == SDL_WINDOWEVENT_CLOSE && 
+                                event.window.windowID == SDL_GetWindowID(window)
+                            ) close();
 
-                        // CLOSE EVENT
-                        if (
-                            event.window.event == SDL_WINDOWEVENT_CLOSE && 
-                            event.window.windowID == SDL_GetWindowID(window)
-                        ) close();
-
-                        // RESIZE EVENT
-                        if (
-                            event.window.event == SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED && 
-                            event.window.windowID == SDL_GetWindowID(window)
-                        ) {
-                            SDL_GL_GetDrawableSize(window, &this.width_, &this.height_);
-                            onResized(this.width_, this.height_);
+                            // RESIZE EVENT
+                            if (
+                                event.window.event == SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED && 
+                                event.window.windowID == SDL_GetWindowID(window)
+                            ) {
+                                SDL_GL_GetDrawableSize(window, &this.width_, &this.height_);
+                                onResized(this.width_, this.height_);
+                            }
                         }
-                    }
-                    break;
+                        break;
+                }
             }
-        }
 
-        // Start the Dear ImGui frame
-        ImGuiOpenGLBackend.new_frame();
-        ImGui_ImplSDL2_NewFrame();
-        igNewFrame();
+            // Start the Dear ImGui frame
+            ImGuiOpenGLBackend.new_frame();
+            ImGui_ImplSDL2_NewFrame();
+            igNewFrame();
 
             // Update input
             inInputUpdate();
@@ -352,37 +372,69 @@ public:
             }
 
 
-        // Rendering
-        igRender();
+            // Rendering
+            igRender();
 
-        // Reset GL State
-        glViewport(0, 0, cast(int)io.DisplaySize.x, cast(int)io.DisplaySize.y);
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
+            // Reset GL State
+            glViewport(0, 0, cast(int)io.DisplaySize.x, cast(int)io.DisplaySize.y);
+            glClearColor(0, 0, 0, 0);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-        // Run early update
-        this.onEarlyUpdate();
+            // Run early update
+            this.onEarlyUpdate();
 
-        // Run UI Render
-        ImGuiOpenGLBackend.render_draw_data(igGetDrawData());
+            // Run UI Render
+            ImGuiOpenGLBackend.render_draw_data(igGetDrawData());
 
-        version(UIViewports) {
-            
-            // Handle viewports
-            if (io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) {
-                SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
-                SDL_GLContext currentCtx = SDL_GL_GetCurrentContext();
-                igUpdatePlatformWindows();
-                igRenderPlatformWindowsDefault();
-                SDL_GL_MakeCurrent(currentWindow, currentCtx);
+            version(UIViewports) {
+                
+                // Handle viewports
+                if (io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) {
+                    SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
+                    SDL_GLContext currentCtx = SDL_GL_GetCurrentContext();
+                    igUpdatePlatformWindows();
+                    igRenderPlatformWindowsDefault();
+                    SDL_GL_MakeCurrent(currentWindow, currentCtx);
+                }
             }
+
+            version (SafeThrottling) {
+                if (throttlingRate > 1) {
+                    // Write image to back buffer.
+                    auto size = io.DisplaySize;
+                    if (fbo == 0) { 
+                        onResized(cast(int)size.x, cast(int)size.y); 
+                    }
+                    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+                    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+                    glBlitFramebuffer(0, 0, cast(int)size.x, cast(int)size.y, 0, 0, cast(int)size.x, cast(int)size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                }
+            }
+
+            // Swap this window
+            SDL_GL_SwapWindow(window);
+
+            // Clean up dialog windows
+            uiImCleanupDialogs();            
         }
-
-        // Swap this window
-        SDL_GL_SwapWindow(window);
-
-        // Clean up dialog windows
-        uiImCleanupDialogs();
+        version (SafeThrottling) {
+            if (throttlingRate == 0 || renderThrottlingCount % throttlingRate == 0) {
+                doUpdate();
+            } else {
+                // Write from back buffer.
+                auto size = io.DisplaySize;
+                if (fbo == 0) { 
+                    onResized(cast(int)size.x, cast(int)size.y); 
+                }
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+                glBlitFramebuffer(0, 0, cast(int)size.x, cast(int)size.y, 0, 0, cast(int)size.x, cast(int)size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                SDL_GL_SwapWindow(window);
+            }
+            renderThrottlingCount++;
+        } else {
+            doUpdate();
+        }
     }
 
     string getWindowHandle() {
@@ -445,6 +497,30 @@ public:
         version(linux) {
             if (!isWayland) {
                 SDL_SetWindowIcon(window, SDL_CreateRGBSurfaceWithFormatFrom(tex.data.ptr, tex.width, tex.height, 32, 4*tex.width,  SDL_PIXELFORMAT_RGBA32));
+            }
+        }
+    }
+
+    override
+    void onResized(int width, int height) {
+        version(SafeThrottling) {
+            if (fboTexture) {
+                glDeleteTextures(1, &fboTexture);
+            }
+            if (fbo) {
+                glDeleteFramebuffers(1, &fbo);
+            }
+            if (throttlingRate > 1) {
+                glGenFramebuffers(1, &fbo);
+                glGenTextures(1, &fboTexture);
+
+                glBindTexture(GL_TEXTURE_2D, fboTexture);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture, 0);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
         }
     }

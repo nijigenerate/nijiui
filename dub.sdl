@@ -19,6 +19,7 @@ stringImportPaths "res/"
 configuration "windows" {
 	platforms "windows"
 	targetType "library"
+	versions "SafeThrottling"
 	subConfiguration "i2d-imgui" "dynamic_dynamicCRT"
 }
 configuration "macOS" {
