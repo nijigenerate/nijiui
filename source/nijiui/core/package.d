@@ -14,16 +14,33 @@ public import nijiui.core.path;
 public import nijiui.core.settings;
 public import nijiui.core.utils;
 import inmath;
+import std.exception;
 
 private {
     double lastTime;
     double currTime;
+    version(OSX) {
+        enum const(char)*[] SDL_VERSIONS_MACOS = ["libSDL2.dylib", "libSDL2-2.0.dylib", "libSDL2-2.0.0.dylib"];
+    }
+
 }
 
 void inInitUI() {
     
     // Load and init SDL2
-    loadSDL();
+    // Special case for macOS
+    version(OSX) {
+        foreach(ver; SDL_VERSIONS_MACOS) {
+            auto sdlSupport = loadSDL(ver);
+
+            if (sdlSupport != SDLSupport.noLibrary && 
+                sdlSupport != SDLSupport.badLibrary) break;
+        }
+    }
+    else auto sdlSupport = loadSDL();
+    enforce(sdlSupport != SDLSupport.noLibrary, "SDL2 library not found!");
+    enforce(sdlSupport != SDLSupport.badLibrary, "Bad SDL2 library found!");
+
     SDL_Init(SDL_INIT_EVERYTHING);
 
     // Load imgui
