@@ -25,6 +25,7 @@ private:
 
     bool drewContents;
     bool wasVisible;
+    bool embeddedMode;
 
 protected:
     ImVec2 panelSpace;
@@ -105,6 +106,10 @@ public:
         return displayNamePtr;
     }
 
+    final bool isEmbedded() {
+        return embeddedMode;
+    }
+
     /**
         Draws the panel
     */
@@ -112,6 +117,13 @@ public:
         this.onBeginUpdate();
             if (drewContents) this.onUpdate();
         this.onEndUpdate();
+    }
+
+    final void updateEmbedded() {
+        embeddedMode = true;
+        scope(exit) embeddedMode = false;
+        igGetContentRegionAvail(&panelSpace);
+        this.onUpdate();
     }
 
     final bool getDefaultVisibility() {
@@ -139,11 +151,16 @@ void inAddPanel(Panel panel) {
     Draws panels
 */
 void inUpdatePanels() {
+    if (inPanelsSuspended) return;
     foreach(panel; inPanels) {
         if (!panel.visible && !panel.alwaysVisible) continue;
 
         panel.update();
     }
+}
+
+void inSetPanelsSuspended(bool suspended) {
+    inPanelsSuspended = suspended;
 }
 
 /**
@@ -159,3 +176,4 @@ void inInitPanels() {
     Panel list
 */
 Panel[] inPanels;
+bool inPanelsSuspended = false;

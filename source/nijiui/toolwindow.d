@@ -27,6 +27,7 @@ private:
     bool disabled;
     int spawnedId;
     const(char)* imName;
+    bool embeddedMode;
 
 protected:
     bool onlyOne;
@@ -94,6 +95,16 @@ public:
         igPopItemFlag();
 
         if (disabled && !visible) visible = true;
+    }
+
+    final void updateEmbedded() {
+        embeddedMode = true;
+        scope(exit) embeddedMode = false;
+        this.onUpdate();
+    }
+
+    final bool isEmbedded() {
+        return embeddedMode;
     }
 
     ImVec2 getPosition() {

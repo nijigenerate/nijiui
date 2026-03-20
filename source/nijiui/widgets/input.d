@@ -214,7 +214,59 @@ bool uiImInputText(string wId, string label, float width, ref string buffer, ImG
     A button
 */
 bool uiImCheckbox(const(char)* text, ref bool val) {
-    return igCheckbox(text, &val);
+    immutable float height = 22.0f;
+    immutable float width = 38.0f;
+    immutable float knobSize = 18.0f;
+    immutable float knobPadding = (height - knobSize) * 0.5f;
+    auto label = text ? text.fromStringz : "";
+    auto idIndex = label.indexOf("###");
+    auto visibleLabel = idIndex >= 0 ? label[0 .. idIndex] : label;
+
+    igPushID(text);
+    scope(exit) igPopID();
+
+    ImVec2 startPos;
+    igGetCursorScreenPos(&startPos);
+
+    bool changed = igInvisibleButton("##switch", ImVec2(width, height));
+    bool hovered = igIsItemHovered();
+    if (changed) {
+        val = !val;
+    }
+
+    auto drawList = igGetWindowDrawList();
+    ImVec4 trackColor = val
+        ? ImVec4(0.70f, 0.25f, 0.00f, 1.00f)
+        : ImVec4(0.78f, 0.81f, 0.86f, 1.00f);
+    if (hovered && !val) {
+        trackColor = ImVec4(0.72f, 0.75f, 0.80f, 1.00f);
+    }
+
+    ImDrawList_AddRectFilled(
+        drawList,
+        startPos,
+        ImVec2(startPos.x + width, startPos.y + height),
+        igColorConvertFloat4ToU32(trackColor),
+        height * 0.5f
+    );
+
+    float knobX = val
+        ? startPos.x + width - knobPadding - knobSize
+        : startPos.x + knobPadding;
+    ImDrawList_AddCircleFilled(
+        drawList,
+        ImVec2(knobX + (knobSize * 0.5f), startPos.y + (height * 0.5f)),
+        knobSize * 0.5f,
+        igColorConvertFloat4ToU32(ImVec4(1.0f, 1.0f, 1.0f, 1.0f))
+    );
+
+    if (visibleLabel.length > 0) {
+        igSameLine(0, 10.0f);
+        igAlignTextToFramePadding();
+        igTextUnformatted(visibleLabel.toStringz, null);
+    }
+
+    return changed;
 }
 
 /**
