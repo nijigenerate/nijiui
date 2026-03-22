@@ -12,6 +12,86 @@ private {
         UiImCategoryFlags flags;
     }
 
+    ImVec4[ImGuiCol.COUNT][] colorSchemeStack;
+
+    bool uiImGetDarkMode() {
+        auto bg = igGetStyle().Colors[ImGuiCol.WindowBg];
+        float h, s, v;
+        igColorConvertRGBtoHSV(bg.x, bg.y, bg.z, &h, &s, &v);
+        return v <= 0.5f;
+    }
+
+    void uiImApplyDarkColorScheme(ref ImGuiStyle style) {
+        style.Colors[ImGuiCol.Text]                 = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        style.Colors[ImGuiCol.TextDisabled]         = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+        style.Colors[ImGuiCol.WindowBg]             = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+        style.Colors[ImGuiCol.ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        style.Colors[ImGuiCol.PopupBg]              = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+        style.Colors[ImGuiCol.Border]               = ImVec4(0.00f, 0.00f, 0.00f, 0.16f);
+        style.Colors[ImGuiCol.BorderShadow]         = ImVec4(0.00f, 0.00f, 0.00f, 0.16f);
+        style.Colors[ImGuiCol.FrameBg]              = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+        style.Colors[ImGuiCol.FrameBgHovered]       = ImVec4(0.15f, 0.15f, 0.15f, 0.40f);
+        style.Colors[ImGuiCol.FrameBgActive]        = ImVec4(0.22f, 0.22f, 0.22f, 0.67f);
+        style.Colors[ImGuiCol.Button]               = ImVec4(0.39f, 0.39f, 0.39f, 0.40f);
+        style.Colors[ImGuiCol.ButtonHovered]        = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
+        style.Colors[ImGuiCol.ButtonActive]         = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+        style.Colors[ImGuiCol.Header]               = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+        style.Colors[ImGuiCol.HeaderHovered]        = ImVec4(0.28f, 0.28f, 0.28f, 0.80f);
+        style.Colors[ImGuiCol.HeaderActive]         = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
+        style.Colors[ImGuiCol.Separator]            = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+        style.Colors[ImGuiCol.CheckMark]            = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarBg]          = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+        style.Colors[ImGuiCol.ScrollbarGrab]        = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarGrabActive]  = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+    }
+
+    void uiImApplyLightColorScheme(ref ImGuiStyle style) {
+        style.Colors[ImGuiCol.Text]                 = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+        style.Colors[ImGuiCol.TextDisabled]         = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+        style.Colors[ImGuiCol.WindowBg]             = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
+        style.Colors[ImGuiCol.ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        style.Colors[ImGuiCol.PopupBg]              = ImVec4(0.98f, 0.98f, 0.98f, 0.98f);
+        style.Colors[ImGuiCol.Border]               = ImVec4(0.00f, 0.00f, 0.00f, 0.14f);
+        style.Colors[ImGuiCol.BorderShadow]         = ImVec4(0.00f, 0.00f, 0.00f, 0.08f);
+        style.Colors[ImGuiCol.FrameBg]              = ImVec4(0.97f, 0.97f, 0.97f, 1.00f);
+        style.Colors[ImGuiCol.FrameBgHovered]       = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        style.Colors[ImGuiCol.FrameBgActive]        = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+        style.Colors[ImGuiCol.Button]               = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
+        style.Colors[ImGuiCol.ButtonHovered]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        style.Colors[ImGuiCol.ButtonActive]         = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);
+        style.Colors[ImGuiCol.Header]               = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
+        style.Colors[ImGuiCol.HeaderHovered]        = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
+        style.Colors[ImGuiCol.HeaderActive]         = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+        style.Colors[ImGuiCol.Separator]            = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
+        style.Colors[ImGuiCol.CheckMark]            = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarBg]          = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarGrab]        = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarGrabHovered] = ImVec4(0.68f, 0.68f, 0.68f, 1.00f);
+        style.Colors[ImGuiCol.ScrollbarGrabActive]  = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
+    }
+
+    void uiImPushDarkColorScheme() {
+        auto ctx = igGetCurrentContext();
+        ImVec4[ImGuiCol.COUNT] saved = ctx.Style.Colors;
+        colorSchemeStack ~= saved;
+        uiImApplyDarkColorScheme(ctx.Style);
+    }
+
+    void uiImPushLightColorScheme() {
+        auto ctx = igGetCurrentContext();
+        ImVec4[ImGuiCol.COUNT] saved = ctx.Style.Colors;
+        colorSchemeStack ~= saved;
+        uiImApplyLightColorScheme(ctx.Style);
+    }
+
+    void uiImPopColorScheme() {
+        if (colorSchemeStack.length == 0) return;
+        auto ctx = igGetCurrentContext();
+        ctx.Style.Colors = colorSchemeStack[$ - 1];
+        colorSchemeStack.length -= 1;
+    }
+
     void uiImGetCategoryColors(ImVec4 color, out ImVec4 hoverColor, out ImVec4 activeColor, out ImVec4 bgColor, out ImVec4 shadowColor, ref ImVec4 textColor, ref bool isDark) {
         
         // First get HSV version of color
@@ -80,8 +160,8 @@ bool uiImBeginCategory(const(char)* title, UiImCategoryFlags flags = UiImCategor
 bool uiImBeginCategory(const(char)* title, ImVec4 color, UiImCategoryFlags flags = UiImCategoryFlags.None, void function(float w, float h) callback = null) {
     import inmath : clamp;
 
-    // We do not support transparency 
-    color.w = 1;
+    // Preserve incoming alpha so embedded overlays can keep categories translucent.
+    float baseAlpha = clamp(color.w, 0.0f, 1.0f);
     color.x = clamp(color.x, 0.15, 1);
     color.y = clamp(color.y, 0.15, 1);
     color.z = clamp(color.z, 0.15, 1);
@@ -94,6 +174,10 @@ bool uiImBeginCategory(const(char)* title, ImVec4 color, UiImCategoryFlags flags
     ImVec4 textColor;
     bool isDark;
     uiImGetCategoryColors(color, hoverColor, activeColor, bgColor, shadowColor, textColor, isDark);
+    hoverColor.w = baseAlpha;
+    activeColor.w = baseAlpha;
+    bgColor = ImVec4(color.x, color.y, color.z, max(0.08f, baseAlpha * 0.14f));
+    shadowColor.w = max(0.02f, baseAlpha * 0.08f);
 
     // Push ID of our category
     igPushID(title);
@@ -117,7 +201,7 @@ bool uiImBeginCategory(const(char)* title, ImVec4 color, UiImCategoryFlags flags
 
     // Calculate some values for drawing our background color.
     data.flags = flags;
-    data.badColor = false;
+    data.badColor = isDark != uiImGetDarkMode();
     data.isDark = isDark;
     data.contentBounds.x = igGetCursorPosX();
     data.contentBounds.y = igGetCursorPosY();
@@ -161,7 +245,7 @@ bool uiImBeginCategory(const(char)* title, ImVec4 color, UiImCategoryFlags flags
             igGetWindowDrawList(),
             ImVec2(cursor.x+1, cursor.y+1),
             ImVec2(cursor.x+data.contentBounds.z-1, newCursor.y+data.contentBounds.w-diffY),
-            igGetColorU32(color), 6.0
+            igGetColorU32(ImVec4(color.x, color.y, color.z, max(0.12f, baseAlpha * 0.30f))), 6.0
         );
     }
 
@@ -202,6 +286,9 @@ bool uiImBeginCategory(const(char)* title, ImVec4 color, UiImCategoryFlags flags
     window.ContentRegionRect.Min.x -= indentSpacing;
     window.WorkRect.Min.x -= indentSpacing;
 
+    if (data.badColor && data.isDark) uiImPushDarkColorScheme();
+    else if (data.badColor && !data.isDark) uiImPushLightColorScheme();
+
     return data.open;
 }
 
@@ -220,6 +307,7 @@ void uiImEndCategory() {
     auto storage = igGetStateStorage();
     auto id = igGetID("CATEGORYDATA");
     if (CategoryData* data = cast(CategoryData*)ImGuiStorage_GetVoidPtr(storage, id)) {
+        if (data.badColor) uiImPopColorScheme();
         if (data.open) {
             igUnindent();
             uiImDummy(vec2(0, 2));
